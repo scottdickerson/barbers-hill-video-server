@@ -1,0 +1,31 @@
+{
+  "name": "barbers-hill-video-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc && node dist/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@jest-mock/express": "^1.4.5",
+    "@types/express": "^4.17.13",
+    "@types/formidable": "^2.0.3",
+    "@types/jest": "^27.0.3",
+    "@types/node": "^17.0.0",
+    "jest": "^27.4.5",
+    "ts-jest": "^27.1.2",
+    "tslint": "^5.20.1",
+    "typescript": "^4.5.4"
+  },
+  "dependencies": {
+    "@types/cors": "^2.8.12",
+    "cors": "^2.8.5",
+    "express": "^4.17.2",
+    "formidable": "^2.0.1",
+    "mongodb": "^4.3.0"
+  }
+}
