@@ -10,7 +10,7 @@
     document.addEventListener("DOMContentLoaded", () => {
       const listButton = document.getElementById("list");
       listButton.addEventListener("click", () => {
-        window.location = "/ui/testVideoPage.html";
+        window.location = "/ui/listVideos.html";
       });
 
       // Store the upload form and fileUploader for later
@@ -23,7 +23,7 @@
       newSequenceInput = document.getElementById("newSequence");
 
       // figure out the new sequence to use for this video
-      fetch("http://127.0.0.1:3000/")
+      fetch("http://127.0.0.1:3000/api")
         .then((response) => response.json())
         .then((videos) => {
           newSequence =
@@ -57,7 +57,7 @@
       id="uploadForm"
       enctype="multipart/form-data"
       method="POST"
-      action="http://127.0.0.1:3000/"
+      action="http://127.0.0.1:3000/api"
     >
       <label id="titleLabel">Title</label>
       <input id="title" aria-labelledby="titleLabel" type="text" name="title" />

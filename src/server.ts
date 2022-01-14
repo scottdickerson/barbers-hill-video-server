@@ -29,12 +29,12 @@ const form = formidable({
 app.use(cors());
 
 // This is used by the video source tag in our HTML to stream the actual video
-app.get("/:videoName", (req: Request, res: Response) => {
+app.get("/api/:videoName", (req: Request, res: Response) => {
   const videoToStream = req.params.videoName;
   streamVideo(videoToStream, res);
 });
 
-app.get("/", async (req: Request, res: Response) => {
+app.get("/api", async (req: Request, res: Response) => {
   const videosDetails = await videoDatabaseConnection.find().toArray();
   // order by sequence number ascending
 
@@ -46,12 +46,12 @@ app.get("/", async (req: Request, res: Response) => {
   res.json(videosDetails);
 });
 
-app.delete("/", (req, res) => {
+app.delete("/api", (req, res) => {
   res.send("deleted all videos");
   videoDatabaseConnection.drop();
 });
 
-app.delete("/:videoName", async (req: Request, res: Response) => {
+app.delete("/api/:videoName", async (req: Request, res: Response) => {
   const videoName = req.params.videoName;
   const deletedInfo = await videoDatabaseConnection.deleteOne({
     videoFilename: req.params.videoName,
@@ -65,7 +65,7 @@ app.delete("/:videoName", async (req: Request, res: Response) => {
   }
 });
 
-app.post("/", (req: Request, res: Response, next: NextFunction) => {
+app.post("/api", (req: Request, res: Response, next: NextFunction) => {
   form.parse(req, async (err, fields, files) => {
     if (err) {
       next(err);
@@ -86,13 +86,13 @@ app.post("/", (req: Request, res: Response, next: NextFunction) => {
     }
     // now redirect back to the list/add page since we've added the file
     console.log("Redirecting to main page");
-    res.setHeader("location", "/ui/returnPage.html");
+    res.setHeader("location", "/ui/mainNavigation.html");
     res.sendStatus(301);
   });
 });
 
 app.put(
-  "/reorder/:videoName/:direction",
+  "/api/reorder/:videoName/:direction",
   async (req: Request, res: Response) => {
     const direction = req.params.direction;
     const upOrDownDelta = direction === "up" ? -1 : 1;
@@ -136,8 +136,14 @@ app.put(
 
 // serve anything from UI directly
 app.use("/ui", (...args) => {
-  console.log("hit ui route");
   return express.static("dist/ui")(...args);
+});
+
+// default page
+app.use("/", (req, res) => {
+  console.log("hit index");
+  res.setHeader("location", "/ui/mainNavigation.html");
+  res.sendStatus(301);
 });
 
 console.log("Video server listening on port", port);

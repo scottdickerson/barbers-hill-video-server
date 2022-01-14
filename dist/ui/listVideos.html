@@ -12,11 +12,17 @@
       upButtonImage.style.height = "48px";
       upButtonImage.style.width = "48px";
       upButton.addEventListener("click", () => {
-        fetch(`http://127.0.0.1:3000/reorder/${videoFilename}/${direction}`, {
-          method: "PUT",
-        });
+        fetch(
+          `http://127.0.0.1:3000/api/reorder/${videoFilename}/${direction}`,
+          {
+            method: "PUT",
+          }
+        );
         location.reload();
       });
+      upButton.innerHTML = direction === "up" ? "Move up" : "Move down";
+      upButton.style.display = "flex";
+      upButton.style.alignItems = "center";
       upButton.appendChild(upButtonImage);
       return upButton;
     };
@@ -36,7 +42,7 @@
       deleteButton.style.width = "150px";
       deleteButton.style.marginLeft = "1rem";
       deleteButton.addEventListener("click", () => {
-        fetch(`http://127.0.0.1:3000/${videoFilename}`, {
+        fetch(`http://127.0.0.1:3000/api/${videoFilename}`, {
           method: "DELETE",
         });
         location.reload();
@@ -63,7 +69,7 @@
       const videoTile = document.createElement("section");
       videoTile.style.display = "flex";
       videoTile.style.flexFlow = "column";
-      videoTile.style.alignItems = "center";
+      videoTile.style.alignItems = "flex-start";
 
       // Title
       const videoTitle = document.createElement("h2");
@@ -74,8 +80,9 @@
       const newVideo = document.createElement("video");
       newVideo.controls = true;
       newVideo.id = videoFilename;
+      newVideo.style.height = "400px";
       const newSource = document.createElement("source");
-      newSource.src = `http://127.0.0.1:3000/${videoFilename}`;
+      newSource.src = `http://127.0.0.1:3000/api/${videoFilename}`;
       newVideo.append(newSource);
       document.body.append(videoTile);
 
@@ -97,10 +104,10 @@
     document.addEventListener("DOMContentLoaded", () => {
       const addButton = document.getElementById("add");
       addButton.addEventListener("click", () => {
-        window.location = "/ui/uploadVideoPage.html";
+        window.location = "/ui/uploadVideo.html";
       });
 
-      fetch("http://127.0.0.1:3000")
+      fetch("http://127.0.0.1:3000/api")
         .then((response) => response.json())
         .then((videoList) => {
           console.log("videoList retrieved", videoList);
