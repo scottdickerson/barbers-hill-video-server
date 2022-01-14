@@ -47,7 +47,19 @@
         });
         location.reload();
       });
+
+      // edit button
+      const editButton = document.createElement("button");
+      editButton.innerHTML = "Edit Video";
+      editButton.style.height = "20px";
+      editButton.style.width = "150px";
+      editButton.style.marginLeft = "1rem";
+      editButton.addEventListener("click", () => {
+        window.location = `/ui/editVideo.html?videoName=${videoFilename}`;
+      });
+
       controlsContainer.append(deleteButton);
+      controlsContainer.append(editButton);
       if (enableUpButton) {
         const upButton = createDirectionButton(videoFilename, "up");
         controlsContainer.append(upButton);

@@ -1,8 +1,10 @@
 import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
 import formidable from "formidable";
+import { omit } from "lodash";
 import mongoDB, { MongoClient } from "mongodb";
 import path from "path";
+
 import { streamVideo } from "./getVideos";
 
 // Replace the uri string with your MongoDB deployment's connection string.
@@ -33,6 +35,17 @@ app.get("/api/:videoName", (req: Request, res: Response) => {
   const videoToStream = req.params.videoName;
   streamVideo(videoToStream, res);
 });
+
+app.get(
+  "/api/videoMetadata/:videoName",
+  async (req: Request, res: Response) => {
+    const videoToEdit = req.params.videoName;
+    const videoDetails = await videoDatabaseConnection.findOne({
+      videoFilename: videoToEdit,
+    });
+    res.send(videoDetails);
+  }
+);
 
 app.get("/api", async (req: Request, res: Response) => {
   const videosDetails = await videoDatabaseConnection.find().toArray();
@@ -65,12 +78,15 @@ app.delete("/api/:videoName", async (req: Request, res: Response) => {
   }
 });
 
-app.post("/api", (req: Request, res: Response, next: NextFunction) => {
+const parseForm = (req: Request, res: Response, next: NextFunction) => {
   form.parse(req, async (err, fields, files) => {
     if (err) {
       next(err);
     }
-    const videoFilename = (files.videoFile as formidable.File).newFilename; // I'm sure this is only one file at a time
+    const videoFilename =
+      req.params?.videoName || // passed as a param if editing, first check the edit case, otherwise it's a new file
+      (files.videoFile as formidable.File)?.newFilename; // I'm sure this is only one file at a time
+
     const newVideo = {
       ...fields,
       sequence: parseInt(fields.sequence as string, 10),
@@ -78,10 +94,16 @@ app.post("/api", (req: Request, res: Response, next: NextFunction) => {
     };
     console.log("uploading new video", JSON.stringify(newVideo));
     try {
-      await videoDatabaseConnection.insertOne(newVideo);
+      await videoDatabaseConnection.replaceOne(
+        { videoFilename }, // either use the new name or the old one
+        { ...omit(newVideo, ["_id"]), videoFilename }, // cannot mess with the existing id
+        {
+          upsert: true,
+        }
+      );
     } catch (error) {
       console.error(error);
-      console.log("could not insert new video", newVideo);
+      console.log("could not insert/update new video", newVideo);
       res.sendStatus(500);
     }
     // now redirect back to the list/add page since we've added the file
@@ -89,6 +111,17 @@ app.post("/api", (req: Request, res: Response, next: NextFunction) => {
     res.setHeader("location", "/ui/mainNavigation.html");
     res.sendStatus(301);
   });
+};
+
+app.post("/api", (req: Request, res: Response, next: NextFunction) => {
+  console.log("creating video");
+  parseForm(req, res, next);
+});
+
+// Bad API design due to form limitation
+app.post("/api/:videoName", (req, res, next) => {
+  console.log("updating video ", req.params.videoName);
+  parseForm(req, res, next);
 });
 
 app.put(

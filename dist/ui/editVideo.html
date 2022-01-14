@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Edit Video</title>
+    <script>
+      // pass the video filename in the location params to this page
+      document.addEventListener("DOMContentLoaded", () => {
+        const videoName = location?.search?.substring(1)?.split("=")?.[1];
+        const videoTag = document.getElementById("existingVideo");
+        const title = document.getElementById("title");
+        const description = document.getElementById("description");
+        const sequence = document.getElementById("sequence");
+        const submitButton = document.getElementById("submitButton");
+        const uploadForm = document.getElementById("uploadForm");
+
+        // Check the form before submitting
+        validateForm = (event) => {
+          if (description.value === "" || title.value === "") {
+            errorMessage.innerHTML = "Fill out all fields to submit!";
+          } else {
+            errorMessage.innerHTML = "";
+          }
+          // todo validate that they haven't changed the name of the file
+          if (errorMessage.innerHTML === "") {
+            uploadForm.submit();
+          }
+        };
+        submitButton.addEventListener("click", validateForm);
+
+        const createImage = (src) => {
+          const sourceElement = document.createElement("source");
+          sourceElement.src = `http://127.0.0.1:3000/api/${src}`;
+
+          console.log("videoTag", videoTag);
+          videoTag.appendChild(sourceElement);
+        };
+
+        console.log("editing videoname", videoName);
+        // load the video details with the getter and the video name
+        fetch(`http://127.0.0.1:3000/api/videoMetadata/${videoName}`)
+          .then((response) => response.json())
+          .then((video) => {
+            createImage(video?.videoFilename);
+            title.value = video?.title;
+            description.value = video?.description;
+            sequence.value = video?.sequence;
+            // tell the upload form where to go
+            uploadForm.action = `http://127.0.0.1:3000/api/${videoName}`;
+            console.log("video: ", video);
+          });
+        // populate the form values (except for the new videoFile)
+        // (fix submission to look for a blank video file and not upload it update it on the file system if not set)
+
+        // validate you didn't change the filename say to delete and recreate if so
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Edit Video</h1>
+    <form id="uploadForm" enctype="multipart/form-data" method="POST">
+      <label id="titleLabel">Title</label>
+      <input id="title" aria-labelledby="titleLabel" type="text" name="title" />
+      <label id="descriptionLabel">Description</label>
+      <input id="sequence" name="sequence" hidden />
+      <input
+        id="description"
+        aria-labelledby="descriptionLabel"
+        type="text"
+        name="description"
+      />
+      <label id="newVideoFile">New Video File</label>
+      <input id="fileUploader" name="videoFile" type="file" />
+      <div id="errorMessage"></div>
+    </form>
+    <div style="padding: 1rem; display: flex; flex-flow: column">
+      <span>Existing Video</span>
+      <video id="existingVideo" style="height: 300px" controls></video>
+      <div style="padding: 1rem">
+        <button id="submitButton">Update Video</button>
+        <button id="list">List existing videos</button>
+      </div>
+    </div>
+  </body>
+</html>
