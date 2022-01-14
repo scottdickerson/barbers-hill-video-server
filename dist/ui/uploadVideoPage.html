@@ -1,0 +1,78 @@
+<html>
+  <script>
+    let fileUploader;
+    let uploadForm;
+    let formValid;
+    let submitButton;
+    let title, description, errorMessage;
+    let newSequence = 0;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const listButton = document.getElementById("list");
+      listButton.addEventListener("click", () => {
+        window.location = "/ui/testVideoPage.html";
+      });
+
+      // Store the upload form and fileUploader for later
+      title = document.getElementById("title");
+      description = document.getElementById("description");
+      errorMessage = document.getElementById("errorMessage");
+      uploadForm = document.getElementById("uploadForm");
+      fileUploader = document.getElementById("fileUploader");
+      submitButton = document.getElementById("submitButton");
+      newSequenceInput = document.getElementById("newSequence");
+
+      // figure out the new sequence to use for this video
+      fetch("http://127.0.0.1:3000/")
+        .then((response) => response.json())
+        .then((videos) => {
+          newSequence =
+            Math.max(...videos.map(({ sequence }) => sequence), 0) + 1;
+          console.log("new Sequence", newSequence);
+          newSequenceInput.value = newSequence;
+        });
+
+      // Check the form before submitting
+      validateForm = (event) => {
+        if (
+          fileUploader.files.length < 1 ||
+          description.value === "" ||
+          title.value === ""
+        ) {
+          errorMessage.innerHTML = "Fill out all fields to submit!";
+        } else {
+          errorMessage.innerHTML = "";
+        }
+        if (errorMessage.innerHTML === "") {
+          uploadForm.submit();
+        }
+      };
+
+      submitButton.addEventListener("click", validateForm);
+    });
+  </script>
+  <body>
+    <h1>Upload new video</h1>
+    <form
+      id="uploadForm"
+      enctype="multipart/form-data"
+      method="POST"
+      action="http://127.0.0.1:3000/"
+    >
+      <label id="titleLabel">Title</label>
+      <input id="title" aria-labelledby="titleLabel" type="text" name="title" />
+      <label id="descriptionLabel">Description</label>
+      <input
+        id="description"
+        aria-labelledby="descriptionLabel"
+        type="text"
+        name="description"
+      />
+      <input id="fileUploader" name="videoFile" type="file" />
+      <input id="newSequence" type="hidden" name="sequence" />
+      <div id="errorMessage"></div>
+    </form>
+    <button id="submitButton">Upload</button>
+    <button id="list">List existing videos</button>
+  </body>
+</html>

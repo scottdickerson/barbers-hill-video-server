@@ -6,7 +6,11 @@
 // Select the database to use.
 use('barbers-hill');
 
-db.videos.find({videoFilename: "earthVideo.mp4"})
+// db.videos.updateOne({videoFilename:'earthVideo.mp4'},{$set: {sequence:0}})
+// db.videos.updateOne({videoFilename:'sample-mp4-file-small.mp4'},{$set: {sequence:1}})
+
+
+db.videos.find()
 // db.videos.insertOne({title: 'title',description: 'description',videoFilename: 'myvideo.mp4'})
 
 // The drop() command destroys all data from a collection.

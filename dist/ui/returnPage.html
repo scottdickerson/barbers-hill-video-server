@@ -1,0 +1,18 @@
+<html>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const addButton = document.getElementById("add");
+      const listButton = document.getElementById("list");
+      addButton.addEventListener("click", () => {
+        window.location = "/ui/uploadVideoPage.html";
+      });
+      listButton.addEventListener("click", () => {
+        window.location = "/ui/testVideoPage.html";
+      });
+    });
+  </script>
+  <body>
+    <button id="add">Add new video</button>
+    <button id="list">List existing videos</button>
+  </body>
+</html>

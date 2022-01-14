@@ -28,8 +28,7 @@ const form = formidable({
 
 app.use(cors());
 
-// This is used by the video source tag to stream the actual video
-
+// This is used by the video source tag in our HTML to stream the actual video
 app.get("/:videoName", (req: Request, res: Response) => {
   const videoToStream = req.params.videoName;
   streamVideo(videoToStream, res);
@@ -37,40 +36,103 @@ app.get("/:videoName", (req: Request, res: Response) => {
 
 app.get("/", async (req: Request, res: Response) => {
   const videosDetails = await videoDatabaseConnection.find().toArray();
-  console.log("video titles from database: ");
+  // order by sequence number ascending
+
+  videosDetails.sort(
+    ({ sequence: sequence1 }, { sequence: sequence2 }) => sequence1 - sequence2
+  );
+  console.log("sorted video titles from database: ", videosDetails);
   videosDetails.forEach((video) => console.log(video.title));
   res.json(videosDetails);
 });
 
 app.delete("/", (req, res) => {
-  res.send("deleted Videos");
+  res.send("deleted all videos");
   videoDatabaseConnection.drop();
 });
 
 app.delete("/:videoName", async (req: Request, res: Response) => {
   const videoName = req.params.videoName;
-  await videoDatabaseConnection.deleteOne({
+  const deletedInfo = await videoDatabaseConnection.deleteOne({
     videoFilename: req.params.videoName,
   });
-  console.log("deleted video title from database: ", videoName);
-  res.send("Deleted video");
+  if (deletedInfo.deletedCount > 0) {
+    console.log("deleted video title from database: ", videoName);
+    res.send("Deleted video");
+  } else {
+    console.log("could not find video to delete", videoName);
+    res.sendStatus(404);
+  }
 });
 
 app.post("/", (req: Request, res: Response, next: NextFunction) => {
-  form.parse(req, (err, fields, files) => {
+  form.parse(req, async (err, fields, files) => {
     if (err) {
       next(err);
     }
     const videoFilename = (files.videoFile as formidable.File).newFilename; // I'm sure this is only one file at a time
-    console.log(JSON.stringify(fields));
-    console.log("video videoFilename being uploaded: ", videoFilename);
-    videoDatabaseConnection.insertOne({ ...fields, videoFilename });
+    const newVideo = {
+      ...fields,
+      sequence: parseInt(fields.sequence as string, 10),
+      videoFilename,
+    };
+    console.log("uploading new video", JSON.stringify(newVideo));
+    try {
+      await videoDatabaseConnection.insertOne(newVideo);
+    } catch (error) {
+      console.error(error);
+      console.log("could not insert new video", newVideo);
+      res.sendStatus(500);
+    }
     // now redirect back to the list/add page since we've added the file
     console.log("Redirecting to main page");
     res.setHeader("location", "/ui/returnPage.html");
     res.sendStatus(301);
   });
 });
+
+app.put(
+  "/reorder/:videoName/:direction",
+  async (req: Request, res: Response) => {
+    const direction = req.params.direction;
+    const upOrDownDelta = direction === "up" ? -1 : 1;
+    const videoName = req.params.videoName;
+
+    const videosToMove = videoDatabaseConnection.find({
+      videoFilename: videoName,
+    });
+
+    const videoToMove = await videosToMove.next();
+    const newSequence = videoToMove?.sequence + upOrDownDelta;
+
+    // TODO: this assumes that the sequences are always correct in the db and there are no duplicates!
+    // increment or decrement the previous or subsequenct video
+    try {
+      await videoDatabaseConnection.updateOne(
+        {
+          sequence: newSequence,
+        },
+        { $set: { sequence: videoToMove?.sequence } }
+      );
+
+      // then update bump up the current video
+      await videoDatabaseConnection.updateOne(
+        { videoFilename: videoName },
+        {
+          $set: {
+            sequence: newSequence,
+          },
+        }
+      );
+    } catch (error) {
+      console.error(error);
+      console.log("could not update video", videoName);
+      res.sendStatus(500);
+    }
+    console.log(`Moved videoName ${videoName} ${upOrDownDelta}`);
+    res.send(`Moved videoName ${videoName} ${upOrDownDelta}`);
+  }
+);
 
 // serve anything from UI directly
 app.use("/ui", (...args) => {
