@@ -6,7 +6,7 @@
 // Select the database to use.
 use('barbers-hill');
 
-db.videos.find()
+db.videos.find({videoFilename: "earthVideo.mp4"})
 // db.videos.insertOne({title: 'title',description: 'description',videoFilename: 'myvideo.mp4'})
 
 // The drop() command destroys all data from a collection.

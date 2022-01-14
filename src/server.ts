@@ -47,6 +47,15 @@ app.delete("/", (req, res) => {
   videoDatabaseConnection.drop();
 });
 
+app.delete("/:videoName", async (req: Request, res: Response) => {
+  const videoName = req.params.videoName;
+  await videoDatabaseConnection.deleteOne({
+    videoFilename: req.params.videoName,
+  });
+  console.log("deleted video title from database: ", videoName);
+  res.send("Deleted video");
+});
+
 app.post("/", (req: Request, res: Response, next: NextFunction) => {
   form.parse(req, (err, fields, files) => {
     if (err) {
