@@ -8,7 +8,20 @@ Use this URL to add videos or list them
 
 Set the MONGO_HOSTNAME and MONGO_PORT environment variables to point to a different mongo than the local one
 
+## Running a local docker image
+
+We have a composed docker image that will start the local mongo database and UI server at the same time but it's not currently persisting files between restart. TODO!
+Run locally with
+
+```~~~bash
+docker compose build
+docker compose up
+```
+
 ## Deploying to Heroku
+
+In our Heroku environment we're pointing to our mongo database in atlas:
+<https://www.mongodb.com/developer/how-to/use-atlas-on-heroku/>
 
 Make sure the two environment variables MONGO_HOSTNAME and MONGO_PORT are set on that heroku project. By default it's 127.0.0.1 and 27017 respectively
 

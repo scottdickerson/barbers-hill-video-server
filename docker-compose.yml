@@ -5,6 +5,7 @@ services:
     ports:
       - "3000:3000"
     env_file: .env
+    ## TODO: mount local code path so as to stop rebuilds of docker compose
     depends_on:
       - db
   db:
