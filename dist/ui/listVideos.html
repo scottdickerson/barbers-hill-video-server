@@ -1,158 +1,167 @@
-<html>
-  <script>
-    createDirectionButton = (videoFilename, direction) => {
-      const upButton = document.createElement("button");
-      upButton.style.height = "48px";
-      upButton.style.marginLeft = "1rem";
-      const upButtonImage = document.createElement("img");
-      upButtonImage.src =
-        direction === "up"
-          ? "http://127.0.0.1:3000/ui/images/uparrow.svg"
-          : "http://127.0.0.1:3000/ui/images/downarrow.svg";
-      upButtonImage.style.height = "48px";
-      upButtonImage.style.width = "48px";
-      upButton.addEventListener("click", () => {
-        fetch(
-          `http://127.0.0.1:3000/api/reorder/${videoFilename}/${direction}`,
-          {
-            method: "PUT",
-          }
-        );
-        location.reload();
-      });
-      upButton.innerHTML = direction === "up" ? "Move up" : "Move down";
-      upButton.style.display = "flex";
-      upButton.style.alignItems = "center";
-      upButton.appendChild(upButtonImage);
-      return upButton;
-    };
-
-    const createVideoControls = (
-      videoFilename,
-      enableUpButton,
-      enableDownButton
-    ) => {
-      const controlsContainer = document.createElement("div");
-      controlsContainer.style.display = "flex";
-      controlsContainer.style.alignItems = "center";
-      // delete button
-      const deleteButton = document.createElement("button");
-      deleteButton.innerHTML = "Delete Video";
-      deleteButton.style.height = "20px";
-      deleteButton.style.width = "150px";
-      deleteButton.style.marginLeft = "1rem";
-      deleteButton.addEventListener("click", () => {
-        fetch(`http://127.0.0.1:3000/api/${videoFilename}`, {
-          method: "DELETE",
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Videos</title>
+    <script>
+      createDirectionButton = (videoFilename, direction) => {
+        const upButton = document.createElement("button");
+        upButton.style.height = "48px";
+        upButton.style.marginLeft = "1rem";
+        const upButtonImage = document.createElement("img");
+        upButtonImage.src =
+          direction === "up"
+            ? "http://127.0.0.1:3000/ui/images/uparrow.svg"
+            : "http://127.0.0.1:3000/ui/images/downarrow.svg";
+        upButtonImage.style.height = "48px";
+        upButtonImage.style.width = "48px";
+        upButton.addEventListener("click", () => {
+          fetch(
+            `http://127.0.0.1:3000/api/reorder/${videoFilename}/${direction}`,
+            {
+              method: "PUT",
+            }
+          );
+          location.reload();
         });
-        location.reload();
-      });
+        upButton.innerHTML = direction === "up" ? "Move up" : "Move down";
+        upButton.style.display = "flex";
+        upButton.style.alignItems = "center";
+        upButton.appendChild(upButtonImage);
+        return upButton;
+      };
 
-      // edit button
-      const editButton = document.createElement("button");
-      editButton.innerHTML = "Edit Video";
-      editButton.style.height = "20px";
-      editButton.style.width = "150px";
-      editButton.style.marginLeft = "1rem";
-      editButton.addEventListener("click", () => {
-        window.location = `/ui/editVideo.html?videoName=${videoFilename}`;
-      });
-
-      controlsContainer.append(deleteButton);
-      controlsContainer.append(editButton);
-      if (enableUpButton) {
-        const upButton = createDirectionButton(videoFilename, "up");
-        controlsContainer.append(upButton);
-      }
-      if (enableDownButton) {
-        const downButton = createDirectionButton(videoFilename, "down");
-        controlsContainer.append(downButton);
-      }
-      return controlsContainer;
-    };
-
-    const createVideoContainer = (
-      title,
-      description,
-      videoFilename,
-      keywords,
-      enableUpButton,
-      enableDownButton
-    ) => {
-      const videoTile = document.createElement("section");
-      videoTile.style.display = "flex";
-      videoTile.style.flexFlow = "column";
-      videoTile.style.alignItems = "flex-start";
-
-      // Title
-      const videoTitle = document.createElement("h2");
-      videoTitle.innerHTML = `Title: ${title} Description: ${description}`;
-      videoTile.append(videoTitle);
-      const videoKeywords = document.createElement("span");
-      videoKeywords.innerHTML = `Keywords: ${keywords}`;
-      videoTile.append(videoKeywords);
-
-      // Video
-      const newVideo = document.createElement("video");
-      newVideo.controls = true;
-      newVideo.id = videoFilename;
-      newVideo.style.height = "400px";
-      const newSource = document.createElement("source");
-      newSource.src = `http://127.0.0.1:3000/api/${videoFilename}`;
-      newVideo.append(newSource);
-      document.body.append(videoTile);
-
-      const videoContainer = document.createElement("div");
-      videoContainer.style.display = "flex";
-      videoContainer.append(newVideo);
-
-      // Buttons
-      const videoControls = createVideoControls(
+      const createVideoControls = (
         videoFilename,
         enableUpButton,
         enableDownButton
-      );
-      videoContainer.append(videoControls);
-
-      videoTile.append(videoContainer);
-    };
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const addButton = document.getElementById("add");
-      addButton.addEventListener("click", () => {
-        window.location = "/ui/uploadVideo.html";
-      });
-
-      fetch("http://127.0.0.1:3000/api")
-        .then((response) => response.json())
-        .then((videoList) => {
-          console.log("videoList retrieved", videoList);
-
-          const maxSequence = Math.max(
-            ...videoList.map(({ sequence }) => sequence)
-          );
-          const minSequence = Math.min(
-            ...videoList.map(({ sequence }) => sequence)
-          );
-          console.log("maxSequence", maxSequence, "minSequence", minSequence);
-
-          videoList.forEach(
-            ({ title, description, videoFilename, sequence, keywords }) => {
-              console.log("videoFilename", videoFilename, "sequence", sequence);
-              // make a video section for each video
-              createVideoContainer(
-                title,
-                description,
-                videoFilename,
-                keywords,
-                sequence !== minSequence,
-                sequence !== maxSequence
-              );
-            }
-          );
+      ) => {
+        const controlsContainer = document.createElement("div");
+        controlsContainer.style.display = "flex";
+        controlsContainer.style.alignItems = "center";
+        // delete button
+        const deleteButton = document.createElement("button");
+        deleteButton.innerHTML = "Delete Video";
+        deleteButton.style.height = "20px";
+        deleteButton.style.width = "150px";
+        deleteButton.style.marginLeft = "1rem";
+        deleteButton.addEventListener("click", () => {
+          fetch(`http://127.0.0.1:3000/api/${videoFilename}`, {
+            method: "DELETE",
+          });
+          location.reload();
         });
-    });
-  </script>
+
+        // edit button
+        const editButton = document.createElement("button");
+        editButton.innerHTML = "Edit Video";
+        editButton.style.height = "20px";
+        editButton.style.width = "150px";
+        editButton.style.marginLeft = "1rem";
+        editButton.addEventListener("click", () => {
+          window.location = `/ui/editVideo.html?videoName=${videoFilename}`;
+        });
+
+        controlsContainer.append(deleteButton);
+        controlsContainer.append(editButton);
+        if (enableUpButton) {
+          const upButton = createDirectionButton(videoFilename, "up");
+          controlsContainer.append(upButton);
+        }
+        if (enableDownButton) {
+          const downButton = createDirectionButton(videoFilename, "down");
+          controlsContainer.append(downButton);
+        }
+        return controlsContainer;
+      };
+
+      const createVideoContainer = (
+        title,
+        description,
+        videoFilename,
+        keywords,
+        enableUpButton,
+        enableDownButton
+      ) => {
+        const videoTile = document.createElement("section");
+        videoTile.style.display = "flex";
+        videoTile.style.flexFlow = "column";
+        videoTile.style.alignItems = "flex-start";
+
+        // Title
+        const videoTitle = document.createElement("h2");
+        videoTitle.innerHTML = `Title: ${title} Description: ${description}`;
+        videoTile.append(videoTitle);
+        const videoKeywords = document.createElement("span");
+        videoKeywords.innerHTML = `Keywords: ${keywords}`;
+        videoTile.append(videoKeywords);
+
+        // Video
+        const newVideo = document.createElement("video");
+        newVideo.controls = true;
+        newVideo.id = videoFilename;
+        newVideo.style.height = "400px";
+        const newSource = document.createElement("source");
+        newSource.src = `http://127.0.0.1:3000/api/${videoFilename}`;
+        newVideo.append(newSource);
+        document.body.append(videoTile);
+
+        const videoContainer = document.createElement("div");
+        videoContainer.style.display = "flex";
+        videoContainer.append(newVideo);
+
+        // Buttons
+        const videoControls = createVideoControls(
+          videoFilename,
+          enableUpButton,
+          enableDownButton
+        );
+        videoContainer.append(videoControls);
+
+        videoTile.append(videoContainer);
+      };
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const addButton = document.getElementById("add");
+        addButton.addEventListener("click", () => {
+          window.location = "/ui/uploadVideo.html";
+        });
+
+        fetch("http://127.0.0.1:3000/api")
+          .then((response) => response.json())
+          .then((videoList) => {
+            console.log("videoList retrieved", videoList);
+
+            const maxSequence = Math.max(
+              ...videoList.map(({ sequence }) => sequence)
+            );
+            const minSequence = Math.min(
+              ...videoList.map(({ sequence }) => sequence)
+            );
+            console.log("maxSequence", maxSequence, "minSequence", minSequence);
+
+            videoList.forEach(
+              ({ title, description, videoFilename, sequence, keywords }) => {
+                console.log(
+                  "videoFilename",
+                  videoFilename,
+                  "sequence",
+                  sequence
+                );
+                // make a video section for each video
+                createVideoContainer(
+                  title,
+                  description,
+                  videoFilename,
+                  keywords,
+                  sequence !== minSequence,
+                  sequence !== maxSequence
+                );
+              }
+            );
+          });
+      });
+    </script>
+  </head>
 
   <body>
     <h1>Current Videos</h1>

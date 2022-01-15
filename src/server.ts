@@ -4,8 +4,9 @@ import formidable from "formidable";
 import { omit } from "lodash";
 import mongoDB, { MongoClient } from "mongodb";
 import path from "path";
+import IVideo from "./types";
 
-import { streamVideo, deleteVideo } from "./getVideos";
+import { deleteVideo, streamVideo } from "./getVideos";
 
 // Replace the uri string with your MongoDB deployment's connection string.
 const uri = `mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000`;
@@ -24,7 +25,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const form = formidable({
   filename: (name, ext, { originalFilename }) => originalFilename || name,
-  keepExtensions: true,
+  keepExtensions: false,
   uploadDir: path.join(__dirname, "..", "dist", "videos"),
 });
 
@@ -40,15 +41,17 @@ app.get(
   "/api/videoMetadata/:videoName",
   async (req: Request, res: Response) => {
     const videoToEdit = req.params.videoName;
-    const videoDetails = await videoDatabaseConnection.findOne({
+    const videoDetails = (await videoDatabaseConnection.findOne({
       videoFilename: videoToEdit,
-    });
+    })) as IVideo;
     res.send(videoDetails);
   }
 );
 
 app.get("/api", async (req: Request, res: Response) => {
-  const videosDetails = await videoDatabaseConnection.find().toArray();
+  const videosDetails = (await videoDatabaseConnection
+    .find()
+    .toArray()) as IVideo[];
   // order by sequence number ascending
 
   videosDetails.sort(
@@ -84,6 +87,9 @@ const parseForm = (req: Request, res: Response, next: NextFunction) => {
     if (err) {
       next(err);
     }
+
+    const isUpdate = req.params?.videoName;
+    console.log("Is this an update? ", isUpdate);
     const videoFilename =
       req.params?.videoName || // passed as a param if editing, first check the edit case, otherwise it's a new file
       (files.videoFile as formidable.File)?.newFilename; // I'm sure this is only one file at a time
@@ -109,7 +115,10 @@ const parseForm = (req: Request, res: Response, next: NextFunction) => {
     }
     // now redirect back to the list/add page since we've added the file
     console.log("Redirecting to main page");
-    res.setHeader("location", "/ui/mainNavigation.html");
+    res.setHeader(
+      "location",
+      isUpdate ? "/ui/listVideos.html" : "/ui/mainNavigation.html"
+    );
     res.sendStatus(301);
   });
 };
@@ -132,11 +141,10 @@ app.put(
     const upOrDownDelta = direction === "up" ? -1 : 1;
     const videoName = req.params.videoName;
 
-    const videosToMove = videoDatabaseConnection.find({
+    const videoToMove = (await videoDatabaseConnection.findOne({
       videoFilename: videoName,
-    });
+    })) as IVideo;
 
-    const videoToMove = await videosToMove.next();
     const newSequence = videoToMove?.sequence + upOrDownDelta;
 
     // TODO: this assumes that the sequences are always correct in the db and there are no duplicates!

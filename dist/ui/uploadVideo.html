@@ -1,53 +1,57 @@
-<html>
-  <script>
-    let fileUploader;
-    let uploadForm;
-    let formValid;
-    let submitButton;
-    let title, description, errorMessage;
-    let newSequence = 0;
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Add Video</title>
+    <script>
+      let fileUploader;
+      let uploadForm;
+      let formValid;
+      let submitButton;
+      let title, description, errorMessage;
+      let newSequence = 0;
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const listButton = document.getElementById("list");
-      listButton.addEventListener("click", () => {
-        window.location = "/ui/listVideos.html";
-      });
-
-      // Store the upload form for later
-      errorMessage = document.getElementById("errorMessage");
-      uploadForm = document.getElementById("uploadForm");
-      submitButton = document.getElementById("submitButton");
-
-      // figure out the new sequence to use for this video
-      fetch("http://127.0.0.1:3000/api")
-        .then((response) => response.json())
-        .then((videos) => {
-          newSequence =
-            Math.max(...videos.map(({ sequence }) => sequence), 0) + 1;
-          console.log("new Sequence", newSequence);
-          uploadForm.elements.newSequence.value = newSequence;
+      document.addEventListener("DOMContentLoaded", () => {
+        const listButton = document.getElementById("list");
+        listButton.addEventListener("click", () => {
+          window.location = "/ui/listVideos.html";
         });
 
-      // Check the form before submitting
-      validateForm = (event) => {
-        if (
-          uploadForm.elements.fileUploader.files.length < 1 ||
-          uploadForm.elements.description.value === "" ||
-          uploadForm.elements.title.value === "" ||
-          uploadForm.elements.keywords.value === ""
-        ) {
-          errorMessage.innerHTML = "Fill out all fields to submit!";
-        } else {
-          errorMessage.innerHTML = "";
-        }
-        if (errorMessage.innerHTML === "") {
-          uploadForm.submit();
-        }
-      };
+        // Store the upload form for later
+        errorMessage = document.getElementById("errorMessage");
+        uploadForm = document.getElementById("uploadForm");
+        submitButton = document.getElementById("submitButton");
 
-      submitButton.addEventListener("click", validateForm);
-    });
-  </script>
+        // figure out the new sequence to use for this video
+        fetch("http://127.0.0.1:3000/api")
+          .then((response) => response.json())
+          .then((videos) => {
+            newSequence =
+              Math.max(...videos.map(({ sequence }) => sequence), 0) + 1;
+            console.log("new Sequence", newSequence);
+            uploadForm.elements.newSequence.value = newSequence;
+          });
+
+        // Check the form before submitting
+        validateForm = (event) => {
+          if (
+            uploadForm.elements.fileUploader.files.length < 1 ||
+            uploadForm.elements.description.value === "" ||
+            uploadForm.elements.title.value === "" ||
+            uploadForm.elements.keywords.value === ""
+          ) {
+            errorMessage.innerHTML = "Fill out all fields to submit!";
+          } else {
+            errorMessage.innerHTML = "";
+          }
+          if (errorMessage.innerHTML === "") {
+            uploadForm.submit();
+          }
+        };
+
+        submitButton.addEventListener("click", validateForm);
+      });
+    </script>
+  </head>
   <body>
     <h1>Upload new video</h1>
     <form
