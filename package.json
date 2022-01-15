@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "postinstall": "npm install typescript && tsc",
-    "start": "node dist/server.js",
+    "start": "mkdir -p ./dist/videos && node dist/server.js",
     "tsc-watch": "tsc -w",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "git add . && git commit -m 'HEROKU' && git push heroku main"

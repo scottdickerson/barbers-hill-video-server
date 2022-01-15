@@ -89,44 +89,49 @@ app.delete("/api/:videoName", async (req: Request, res: Response) => {
 });
 
 const parseForm = (req: Request, res: Response, next: NextFunction) => {
-  form.parse(req, async (err, fields, files) => {
-    if (err) {
-      next(err);
-    }
+  try {
+    form.parse(req, async (err, fields, files) => {
+      if (err) {
+        next(err);
+      }
 
-    const isUpdate = req.params?.videoName;
-    console.log("Is this an update? ", isUpdate);
-    const videoFilename =
-      req.params?.videoName || // passed as a param if editing, first check the edit case, otherwise it's a new file
-      (files.videoFile as formidable.File)?.newFilename; // I'm sure this is only one file at a time
+      const isUpdate = Boolean(req.params?.videoName);
+      console.log("Is this an update? ", isUpdate);
+      const videoFilename =
+        req.params?.videoName || // passed as a param if editing, first check the edit case, otherwise it's a new file
+        (files.videoFile as formidable.File)?.newFilename; // I'm sure this is only one file at a time
 
-    const newVideo = {
-      ...fields,
-      sequence: parseInt(fields.sequence as string, 10),
-      videoFilename,
-    };
-    console.log("uploading new video", JSON.stringify(newVideo));
-    try {
-      await videoDatabaseConnection.replaceOne(
-        { videoFilename }, // either use the new name or the old one
-        { ...omit(newVideo, ["_id"]), videoFilename }, // cannot mess with the existing id
-        {
-          upsert: true,
-        }
+      const newVideo = {
+        ...fields,
+        sequence: parseInt(fields.sequence as string, 10),
+        videoFilename,
+      };
+      console.log("uploading new video", JSON.stringify(newVideo));
+      try {
+        await videoDatabaseConnection.replaceOne(
+          { videoFilename }, // either use the new name or the old one
+          { ...omit(newVideo, ["_id"]), videoFilename }, // cannot mess with the existing id
+          {
+            upsert: true,
+          }
+        );
+      } catch (error) {
+        console.error(error);
+        console.log("could not insert/update new video", newVideo);
+        res.sendStatus(500);
+      }
+      // now redirect back to the list/add page since we've added the file
+      console.log("Redirecting to main page");
+      res.setHeader(
+        "location",
+        isUpdate ? "/ui/listVideos.html" : "/ui/mainNavigation.html"
       );
-    } catch (error) {
-      console.error(error);
-      console.log("could not insert/update new video", newVideo);
-      res.sendStatus(500);
-    }
-    // now redirect back to the list/add page since we've added the file
-    console.log("Redirecting to main page");
-    res.setHeader(
-      "location",
-      isUpdate ? "/ui/listVideos.html" : "/ui/mainNavigation.html"
-    );
-    res.sendStatus(301);
-  });
+      res.sendStatus(301);
+    });
+  } catch (error) {
+    console.log("error parsing the form or uploading the image file");
+    console.error(error);
+  }
 };
 
 app.post("/api", (req: Request, res: Response, next: NextFunction) => {

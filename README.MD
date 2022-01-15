@@ -35,12 +35,17 @@ Deploy to Heroku for testing
 ```~~~bash
 heroku login
 heroku create barbers-hill-video-server
+git add .
+git commit -m 'HEROKU'
 git push heroku main
 heroku config:set MONGO_HOSTNAME=cluster0.umj4z.mongodb.net
 heroku config:set MONGO_USER=admin
 heroku config:set MONGO_PASS=<normalpassword>
 
 ```
+
+You can then hit the server at
+https://barbers-hill-video-server.herokuapp.com/
 
 ## TODOS
 
