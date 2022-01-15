@@ -9,9 +9,11 @@ import IVideo from "./types";
 import { deleteVideo, streamVideo } from "./getVideos";
 
 // Replace the uri string with your MongoDB deployment's connection string.
-const uri = `mongodb://${process.env.MONGO_HOSTNAME || "127.0.0.1"}:${
-  process.env.MONGO_PORT || "27017"
-}/?directConnection=true&serverSelectionTimeoutMS=2000`;
+const uri = `mongodb+srv://${process.env.MONGO_USER}:${
+  process.env.MONGO_PASS
+}@${process.env.MONGO_HOSTNAME || "127.0.0.1"}${
+  process.env.MONGO_PORT ? ":" + process.env.MONGO_PORT || "27017" : ""
+}/?retryWrites=true&w=majority`;
 
 console.log("mongo db url", uri);
 const client = new MongoClient(uri);

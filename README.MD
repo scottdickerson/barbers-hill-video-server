@@ -6,7 +6,12 @@ Use this URL to add videos or list them
 
 ## pointing to a mongo database
 
-Set the MONGO_HOSTNAME and MONGO_PORT environment variables to point to a different mongo than the local one
+Set the MONGO_HOSTNAME, MONGO_PORT, MONGO_USER, and MONGO_PASS environment variables to point to the cloud hosted mongo server.
+
+You can set these in the .env file and then source them locally for testing with this
+`export $(cat .env | xargs)`
+
+mongodb+srv://admin:<password>@cluster0.umj4z.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
 
 ## Running a local docker image
 
