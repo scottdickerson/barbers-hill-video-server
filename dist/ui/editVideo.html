@@ -47,6 +47,8 @@
         };
 
         console.log("editing videoname", videoName);
+
+        videoFilename.innerHTML = `Existing video file name: ${videoName}`;
         // load the video details with the getter and the video name
         fetch(`/api/videoMetadata/${videoName}`)
           .then((response) => response.json())
@@ -56,7 +58,6 @@
             description.value = video?.description;
             keywords.value = video?.keywords;
             sequence.value = video?.sequence;
-            videoFilename = `Existing video file name: ${videoName}`;
             // tell the upload form where to go
             uploadForm.action = `/api/${videoName}`;
             console.log("video: ", video);
@@ -74,7 +75,7 @@
       <label id="titleLabel">Title</label>
       <input id="title" aria-labelledby="titleLabel" type="text" name="title" />
       <label id="descriptionLabel">Description</label>
-      <span id="videoFilename"></span>
+
       <input
         id="description"
         aria-labelledby="descriptionLabel"
@@ -94,7 +95,7 @@
       <div id="errorMessage" style="color: red"></div>
     </form>
     <div style="padding: 1rem; display: flex; flex-flow: column">
-      <span>Existing Video</span>
+      <span id="videoFilename"></span>
       <video id="existingVideo" style="height: 300px" controls></video>
       <div style="padding: 1rem">
         <button id="submitButton">Update Video</button>
