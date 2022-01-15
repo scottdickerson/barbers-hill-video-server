@@ -14,6 +14,7 @@
         const submitButton = document.getElementById("submitButton");
         const uploadForm = document.getElementById("uploadForm");
         const fileUploader = document.getElementById("fileUploader");
+        const videoFilename = document.getElementById("videoFilename");
 
         // Check the form before submitting
         validateForm = (event) => {
@@ -55,6 +56,7 @@
             description.value = video?.description;
             keywords.value = video?.keywords;
             sequence.value = video?.sequence;
+            videoFilename = `Existing video file name: ${videoName}`;
             // tell the upload form where to go
             uploadForm.action = `/api/${videoName}`;
             console.log("video: ", video);
@@ -72,6 +74,7 @@
       <label id="titleLabel">Title</label>
       <input id="title" aria-labelledby="titleLabel" type="text" name="title" />
       <label id="descriptionLabel">Description</label>
+      <span id="videoFilename"></span>
       <input
         id="description"
         aria-labelledby="descriptionLabel"
