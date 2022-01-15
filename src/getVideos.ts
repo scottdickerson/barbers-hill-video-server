@@ -9,6 +9,10 @@ interface IVideoDetails {
 
 const VIDEO_PATH = "videos";
 
+export const deleteVideo = (videoFileName: string): void => {
+  fs.unlinkSync(path.join(__dirname, VIDEO_PATH, videoFileName));
+};
+
 export const streamVideo = (
   videoFileName: string,
   responseStream: Response

@@ -9,16 +9,26 @@
         const videoTag = document.getElementById("existingVideo");
         const title = document.getElementById("title");
         const description = document.getElementById("description");
+        const keywords = document.getElementById("keywords");
         const sequence = document.getElementById("sequence");
         const submitButton = document.getElementById("submitButton");
         const uploadForm = document.getElementById("uploadForm");
+        const fileUploader = document.getElementById("fileUploader");
 
         // Check the form before submitting
         validateForm = (event) => {
-          if (description.value === "" || title.value === "") {
+          errorMessage.innerHTML = "";
+          if (
+            description.value === "" ||
+            title.value === "" ||
+            keywords.value === ""
+          ) {
             errorMessage.innerHTML = "Fill out all fields to submit!";
-          } else {
-            errorMessage.innerHTML = "";
+          }
+          const newFilename =
+            fileUploader.files?.length > 0 && fileUploader.files[0].name;
+          if (newFilename && videoName !== newFilename) {
+            errorMessage.innerHTML = `Cannot change the video name when editing, the file must be called ${videoName}`;
           }
           // todo validate that they haven't changed the name of the file
           if (errorMessage.innerHTML === "") {
@@ -43,6 +53,7 @@
             createImage(video?.videoFilename);
             title.value = video?.title;
             description.value = video?.description;
+            keywords.value = video?.keywords;
             sequence.value = video?.sequence;
             // tell the upload form where to go
             uploadForm.action = `http://127.0.0.1:3000/api/${videoName}`;
@@ -61,16 +72,23 @@
       <label id="titleLabel">Title</label>
       <input id="title" aria-labelledby="titleLabel" type="text" name="title" />
       <label id="descriptionLabel">Description</label>
-      <input id="sequence" name="sequence" hidden />
       <input
         id="description"
         aria-labelledby="descriptionLabel"
         type="text"
         name="description"
       />
+      <label id="keywordsLabel">Keywords</label>
+      <input
+        id="keywords"
+        aria-labelledby="keywordsLabel"
+        type="text"
+        name="keywords"
+      />
       <label id="newVideoFile">New Video File</label>
       <input id="fileUploader" name="videoFile" type="file" />
-      <div id="errorMessage"></div>
+      <input id="sequence" name="sequence" hidden />
+      <div id="errorMessage" style="color: red"></div>
     </form>
     <div style="padding: 1rem; display: flex; flex-flow: column">
       <span>Existing Video</span>

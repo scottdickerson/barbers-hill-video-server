@@ -75,6 +75,7 @@
       title,
       description,
       videoFilename,
+      keywords,
       enableUpButton,
       enableDownButton
     ) => {
@@ -87,6 +88,9 @@
       const videoTitle = document.createElement("h2");
       videoTitle.innerHTML = `Title: ${title} Description: ${description}`;
       videoTile.append(videoTitle);
+      const videoKeywords = document.createElement("span");
+      videoKeywords.innerHTML = `Keywords: ${keywords}`;
+      videoTile.append(videoKeywords);
 
       // Video
       const newVideo = document.createElement("video");
@@ -133,13 +137,14 @@
           console.log("maxSequence", maxSequence, "minSequence", minSequence);
 
           videoList.forEach(
-            ({ title, description, videoFilename, sequence }) => {
+            ({ title, description, videoFilename, sequence, keywords }) => {
               console.log("videoFilename", videoFilename, "sequence", sequence);
               // make a video section for each video
               createVideoContainer(
                 title,
                 description,
                 videoFilename,
+                keywords,
                 sequence !== minSequence,
                 sequence !== maxSequence
               );

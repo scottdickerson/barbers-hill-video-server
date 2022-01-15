@@ -13,14 +13,10 @@
         window.location = "/ui/listVideos.html";
       });
 
-      // Store the upload form and fileUploader for later
-      title = document.getElementById("title");
-      description = document.getElementById("description");
+      // Store the upload form for later
       errorMessage = document.getElementById("errorMessage");
       uploadForm = document.getElementById("uploadForm");
-      fileUploader = document.getElementById("fileUploader");
       submitButton = document.getElementById("submitButton");
-      newSequenceInput = document.getElementById("newSequence");
 
       // figure out the new sequence to use for this video
       fetch("http://127.0.0.1:3000/api")
@@ -29,15 +25,16 @@
           newSequence =
             Math.max(...videos.map(({ sequence }) => sequence), 0) + 1;
           console.log("new Sequence", newSequence);
-          newSequenceInput.value = newSequence;
+          uploadForm.elements.newSequence.value = newSequence;
         });
 
       // Check the form before submitting
       validateForm = (event) => {
         if (
-          fileUploader.files.length < 1 ||
-          description.value === "" ||
-          title.value === ""
+          uploadForm.elements.fileUploader.files.length < 1 ||
+          uploadForm.elements.description.value === "" ||
+          uploadForm.elements.title.value === "" ||
+          uploadForm.elements.keywords.value === ""
         ) {
           errorMessage.innerHTML = "Fill out all fields to submit!";
         } else {
@@ -68,9 +65,18 @@
         type="text"
         name="description"
       />
+      <label id="keywordsLabel">Keywords</label>
+      <input
+        id="keywords"
+        placeholder="Enter searchable keywords separated by commas"
+        aria-labelledby="keywordsLabel"
+        type="text"
+        name="keywords"
+        style="width: 400px"
+      />
       <input id="fileUploader" name="videoFile" type="file" />
       <input id="newSequence" type="hidden" name="sequence" />
-      <div id="errorMessage"></div>
+      <div id="errorMessage" style="color: red"></div>
     </form>
     <button id="submitButton">Upload</button>
     <button id="list">List existing videos</button>

@@ -5,7 +5,7 @@ import { omit } from "lodash";
 import mongoDB, { MongoClient } from "mongodb";
 import path from "path";
 
-import { streamVideo } from "./getVideos";
+import { streamVideo, deleteVideo } from "./getVideos";
 
 // Replace the uri string with your MongoDB deployment's connection string.
 const uri = `mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000`;
@@ -71,6 +71,7 @@ app.delete("/api/:videoName", async (req: Request, res: Response) => {
   });
   if (deletedInfo.deletedCount > 0) {
     console.log("deleted video title from database: ", videoName);
+    deleteVideo(videoName);
     res.send("Deleted video");
   } else {
     console.log("could not find video to delete", videoName);
