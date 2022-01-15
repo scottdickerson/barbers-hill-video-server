@@ -27,6 +27,13 @@ Make sure the two environment variables MONGO_HOSTNAME and MONGO_PORT are set on
 
 Deploy to Heroku for testing
 
+```~~~bash
+heroku login
+heroku create barbers-hill-video-server
+git push heroku main
+
+```
+
 ## TODOS
 
 Edit case is writing invalid name since I'm going through the same codepath in formik without file upload
@@ -34,3 +41,5 @@ Edit case is writing invalid name since I'm going through the same codepath in f
 test more than 20 videos to make sure they display from mongo
 
 Add editing of overall page description to main Navigation
+
+Learn to deploy the prebuilt Docker container to Heroku directly
