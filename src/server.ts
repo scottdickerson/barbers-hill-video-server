@@ -9,7 +9,11 @@ import IVideo from "./types";
 import { deleteVideo, streamVideo } from "./getVideos";
 
 // Replace the uri string with your MongoDB deployment's connection string.
-const uri = `mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000`;
+const uri = `mongodb://${process.env.MONGO_HOSTNAME || "127.0.0.1"}:${
+  process.env.MONGO_PORT || "27017"
+}/?directConnection=true&serverSelectionTimeoutMS=2000`;
+
+console.log("mongo db url", uri);
 const client = new MongoClient(uri);
 let videoDatabaseConnection: mongoDB.Collection;
 
