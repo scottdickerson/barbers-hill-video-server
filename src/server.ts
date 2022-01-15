@@ -143,6 +143,7 @@ app.post("/api/:videoName", (req, res, next) => {
 app.put(
   "/api/reorder/:videoName/:direction",
   async (req: Request, res: Response) => {
+    console.log("reordering videos");
     const direction = req.params.direction;
     const upOrDownDelta = direction === "up" ? -1 : 1;
     const videoName = req.params.videoName;
@@ -152,6 +153,8 @@ app.put(
     })) as IVideo;
 
     const newSequence = videoToMove?.sequence + upOrDownDelta;
+    console.log("newSequence is", newSequence);
+    console.log("oldSequence is", videoToMove?.sequence);
 
     // TODO: this assumes that the sequences are always correct in the db and there are no duplicates!
     // increment or decrement the previous or subsequenct video

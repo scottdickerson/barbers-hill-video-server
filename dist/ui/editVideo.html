@@ -39,7 +39,7 @@
 
         const createImage = (src) => {
           const sourceElement = document.createElement("source");
-          sourceElement.src = `http://127.0.0.1:3000/api/${src}`;
+          sourceElement.src = `/api/${src}`;
 
           console.log("videoTag", videoTag);
           videoTag.appendChild(sourceElement);
@@ -47,7 +47,7 @@
 
         console.log("editing videoname", videoName);
         // load the video details with the getter and the video name
-        fetch(`http://127.0.0.1:3000/api/videoMetadata/${videoName}`)
+        fetch(`/api/videoMetadata/${videoName}`)
           .then((response) => response.json())
           .then((video) => {
             createImage(video?.videoFilename);
@@ -56,7 +56,7 @@
             keywords.value = video?.keywords;
             sequence.value = video?.sequence;
             // tell the upload form where to go
-            uploadForm.action = `http://127.0.0.1:3000/api/${videoName}`;
+            uploadForm.action = `/api/${videoName}`;
             console.log("video: ", video);
           });
         // populate the form values (except for the new videoFile)

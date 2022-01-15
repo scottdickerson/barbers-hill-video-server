@@ -36,6 +36,9 @@ Deploy to Heroku for testing
 heroku login
 heroku create barbers-hill-video-server
 git push heroku main
+heroku config:set MONGO_HOSTNAME=cluster0.umj4z.mongodb.net
+heroku config:set MONGO_USER=admin
+heroku config:set MONGO_PASS=<normalpassword>
 
 ```
 

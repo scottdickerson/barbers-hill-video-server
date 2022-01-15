@@ -10,17 +10,14 @@
         const upButtonImage = document.createElement("img");
         upButtonImage.src =
           direction === "up"
-            ? "http://127.0.0.1:3000/ui/images/uparrow.svg"
-            : "http://127.0.0.1:3000/ui/images/downarrow.svg";
+            ? "/ui/images/uparrow.svg"
+            : "/ui/images/downarrow.svg";
         upButtonImage.style.height = "48px";
         upButtonImage.style.width = "48px";
         upButton.addEventListener("click", () => {
-          fetch(
-            `http://127.0.0.1:3000/api/reorder/${videoFilename}/${direction}`,
-            {
-              method: "PUT",
-            }
-          );
+          fetch(`/api/reorder/${videoFilename}/${direction}`, {
+            method: "PUT",
+          });
           location.reload();
         });
         upButton.innerHTML = direction === "up" ? "Move up" : "Move down";
@@ -45,7 +42,7 @@
         deleteButton.style.width = "150px";
         deleteButton.style.marginLeft = "1rem";
         deleteButton.addEventListener("click", () => {
-          fetch(`http://127.0.0.1:3000/api/${videoFilename}`, {
+          fetch(`/api/${videoFilename}`, {
             method: "DELETE",
           });
           location.reload();
@@ -101,7 +98,7 @@
         newVideo.id = videoFilename;
         newVideo.style.height = "400px";
         const newSource = document.createElement("source");
-        newSource.src = `http://127.0.0.1:3000/api/${videoFilename}`;
+        newSource.src = `/api/${videoFilename}`;
         newVideo.append(newSource);
         document.body.append(videoTile);
 
@@ -126,7 +123,7 @@
           window.location = "/ui/uploadVideo.html";
         });
 
-        fetch("http://127.0.0.1:3000/api")
+        fetch("/api")
           .then((response) => response.json())
           .then((videoList) => {
             console.log("videoList retrieved", videoList);
