@@ -71,17 +71,29 @@
   </head>
   <body>
     <h1>Edit Video</h1>
-    <form id="uploadForm" enctype="multipart/form-data" method="POST">
+    <form
+      id="uploadForm"
+      enctype="multipart/form-data"
+      method="POST"
+      style="
+        display: flex;
+        flex-flow: column;
+        justify-content: space-between;
+        height: 300px;
+      "
+    >
       <label id="titleLabel">Title</label>
       <input id="title" aria-labelledby="titleLabel" type="text" name="title" />
       <label id="descriptionLabel">Description</label>
 
-      <input
+      <textarea
         id="description"
         aria-labelledby="descriptionLabel"
         type="text"
         name="description"
-      />
+        rows="5"
+        cols="40"
+      ></textarea>
       <label id="keywordsLabel">Keywords</label>
       <input
         id="keywords"

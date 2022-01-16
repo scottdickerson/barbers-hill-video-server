@@ -86,14 +86,19 @@
 
         // Title
         const videoTitle = document.createElement("h2");
-        videoTitle.innerHTML = `Title: ${title} Description: ${description}`;
+        videoTitle.innerHTML = `Title: ${title}`;
         videoTile.append(videoTitle);
-        const videoKeywords = document.createElement("span");
+        const videoDescription = document.createElement("p");
+        videoDescription.innerHTML = `Description: ${description}`;
+        videoDescription.style.maxWidth = "350px";
+        videoTile.append(videoDescription);
+        const videoKeywords = document.createElement("p");
         videoKeywords.innerHTML = `Keywords: ${keywords}`;
         videoTile.append(videoKeywords);
-        const videoFilenameField = document.createElement("span");
+        const videoFilenameField = document.createElement("p");
         videoFilenameField.innerHTML = `Filename: ${videoFilename}`;
         videoTile.append(videoFilenameField);
+        document.body.append(videoTile);
 
         // Video
         const newVideo = document.createElement("video");
@@ -103,7 +108,6 @@
         const newSource = document.createElement("source");
         newSource.src = `/api/${videoFilename}`;
         newVideo.append(newSource);
-        document.body.append(videoTile);
 
         const videoContainer = document.createElement("div");
         videoContainer.style.display = "flex";
@@ -118,6 +122,14 @@
         videoContainer.append(videoControls);
 
         videoTile.append(videoContainer);
+
+        // add separator between videos
+        const separator = document.createElement("hr");
+        separator.style.width = "100%";
+        separator.style.height = "3px";
+        separator.style.backgroundColor = "black";
+        separator.style.marginTop = "1rem";
+        videoTile.append(separator);
       };
 
       document.addEventListener("DOMContentLoaded", () => {
