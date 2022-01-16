@@ -18,16 +18,20 @@ const uri = `mongodb+srv://${process.env.MONGO_USER}:${
 console.log("mongo db url", uri);
 const client = new MongoClient(uri);
 let videoDatabaseConnection: mongoDB.Collection;
+let overviewConnection: mongoDB.Collection;
 
 async function connectToDB() {
   await client.connect();
   const database = client.db("barbers-hill");
   videoDatabaseConnection = database.collection("videos");
+  overviewConnection = database.collection("overview");
 }
 
 connectToDB().catch(console.dir);
 
 const app = express();
+
+app.use(express.json());
 const port = process.env.PORT || 3000;
 const form = formidable({
   filename: (name, ext, { originalFilename }) => originalFilename || name,
@@ -36,6 +40,19 @@ const form = formidable({
 });
 
 app.use(cors());
+
+app.get("/api/overview", async (req: Request, res: Response) => {
+  const overview = await overviewConnection.findOne();
+  res.json(overview);
+});
+
+app.put("/api/overview", (req: Request, res: Response) => {
+  console.log("Updating overview: ", req.body);
+  overviewConnection.replaceOne({}, req.body, {
+    upsert: true,
+  });
+  res.json(req.body);
+});
 
 // This is used by the video source tag in our HTML to stream the actual video
 app.get("/api/:videoName", (req: Request, res: Response) => {

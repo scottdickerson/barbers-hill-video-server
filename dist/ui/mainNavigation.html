@@ -3,6 +3,31 @@
     document.addEventListener("DOMContentLoaded", () => {
       const addButton = document.getElementById("add");
       const listButton = document.getElementById("list");
+      const updateForm = document.getElementById("updateForm");
+      const introductionField = document.getElementById("introduction");
+
+      // populate the introduction
+      fetch("/api/overview")
+        .then((response) => response.json())
+        .then(({ introduction }) => {
+          introductionField.value = introduction;
+        });
+
+      updateForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const introduction = introductionField.value;
+        if (introduction === "") {
+          return false;
+        } else {
+          const form = { introduction };
+          console.log("submitting introduction", form);
+          fetch("/api/overview", {
+            method: "PUT",
+            body: JSON.stringify(form),
+            headers: { "content-type": "application/json" },
+          });
+        }
+      });
       addButton.addEventListener("click", () => {
         window.location = "/ui/uploadVideo.html";
       });
@@ -12,8 +37,26 @@
     });
   </script>
   <body>
-    <h1>Select an action</h1>
-    <button id="add">Add new video</button>
-    <button id="list">List existing videos</button>
+    <h1>Barbers Hill Video Administration</h1>
+    <div style="display: flex; flex-flow: column">
+      <form id="updateForm">
+        <label id="introductionLabel">Introduction</label>
+        <textarea
+          rows="5"
+          cols="100"
+          name="introduction"
+          id="introduction"
+          aria-labelledby="introductionLabel"
+        ></textarea>
+        <button type="submit" id="updateIntroductionButton">
+          Update introduction
+        </button>
+      </form>
+      <div>
+        <h2>Select an Action</h2>
+        <button id="add">Add new video</button>
+        <button id="list">List existing videos</button>
+      </div>
+    </div>
   </body>
 </html>
