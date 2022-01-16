@@ -25,7 +25,7 @@ async function connectToDB() {
   const database = client.db("barbers-hill");
   videoDatabaseConnection = database.collection("videos");
   overviewConnection = database.collection("overview");
-  if (process.env.HEROKU_ENVIRONMENT) {
+  if (process.env.ENVIRONMENT === "heroku") {
     console.log(
       "clearing videos since heroku has restarted and the video files have been lost"
     );
