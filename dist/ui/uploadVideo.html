@@ -59,16 +59,25 @@
       enctype="multipart/form-data"
       method="POST"
       action="/api"
+      style="
+        display: flex;
+        flex-flow: column;
+        height: 250px;
+        justify-content: space-between;
+        width: 300px;
+      "
     >
       <label id="titleLabel">Title</label>
       <input id="title" aria-labelledby="titleLabel" type="text" name="title" />
       <label id="descriptionLabel">Description</label>
-      <input
+      <textarea
         id="description"
         aria-labelledby="descriptionLabel"
         type="text"
         name="description"
-      />
+        rows="5"
+        cols="35"
+      ></textarea>
       <label id="keywordsLabel">Keywords</label>
       <input
         id="keywords"
@@ -82,7 +91,10 @@
       <input id="newSequence" type="hidden" name="sequence" />
       <div id="errorMessage" style="color: red"></div>
     </form>
-    <button id="submitButton">Upload</button>
-    <button id="list">List existing videos</button>
+    <div>
+      <h2>Actions</h2>
+      <button id="submitButton">Upload</button>
+      <button id="list">List existing videos</button>
+    </div>
   </body>
 </html>
