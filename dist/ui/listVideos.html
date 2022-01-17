@@ -44,8 +44,9 @@
         deleteButton.addEventListener("click", () => {
           fetch(`/api/${videoFilename}`, {
             method: "DELETE",
+          }).then(() => {
+            location.reload();
           });
-          location.reload();
         });
 
         // edit button

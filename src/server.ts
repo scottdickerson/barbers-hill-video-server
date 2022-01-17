@@ -9,11 +9,11 @@ import IVideo from "./types";
 import { deleteVideo, streamVideo } from "./getVideos";
 
 // Replace the uri string with your MongoDB deployment's connection string.
-const uri = `mongodb+srv://${process.env.MONGO_USER}:${
-  process.env.MONGO_PASS
-}@${process.env.MONGO_HOSTNAME || "127.0.0.1"}${
-  process.env.MONGO_PORT ? ":" + process.env.MONGO_PORT || "27017" : ""
-}/?retryWrites=true&w=majority`;
+const uri = process.env.MONGO_HOSTNAME
+  ? `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@${process.env.MONGO_HOSTNAME}/?retryWrites=true&w=majority`
+  : `mongodb://127.0.0.1:${
+      process.env.MONGO_PORT ? process.env.MONGO_PORT : "27017"
+    }`;
 
 console.log("mongo db url", uri);
 const client = new MongoClient(uri);
@@ -25,6 +25,12 @@ async function connectToDB() {
   const database = client.db("barbers-hill");
   videoDatabaseConnection = database.collection("videos");
   overviewConnection = database.collection("overview");
+
+  console.log(
+    `connected to the barbers hill mongo database here: ${
+      process.env.MONGO_HOSTNAME || "mongodb://127.0.0.1:27017"
+    }`
+  );
   if (process.env.ENVIRONMENT === "heroku") {
     console.log(
       "clearing videos since heroku has restarted and the video files have been lost"
