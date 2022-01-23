@@ -34,7 +34,7 @@ Deploy to Heroku for testing
 
 ```~~~bash
 heroku login
-heroku create barbers-hill-video-server
+heroku git:remote -a barbers-hill-video-server
 git add .
 git commit -m 'HEROKU'
 git push heroku main
