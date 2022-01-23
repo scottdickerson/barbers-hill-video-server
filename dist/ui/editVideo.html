@@ -16,6 +16,13 @@
         const fileUploader = document.getElementById("fileUploader");
         const videoFilename = document.getElementById("videoFilename");
 
+        const listButton = document.getElementById("list");
+        listButton.addEventListener("click", () => {
+          window.location = "/ui/listVideos.html";
+        });
+
+        const MAX_FILE_SIZE_IN_MB = 300;
+
         // Check the form before submitting
         validateForm = (event) => {
           errorMessage.innerHTML = "";
@@ -28,6 +35,11 @@
           }
           const newFilename =
             fileUploader.files?.length > 0 && fileUploader.files[0].name;
+          const fileSize = fileUploader.files[0]?.size;
+          console.log("File size", fileSize);
+          if (fileSize > MAX_FILE_SIZE_IN_MB * 1024 * 1024) {
+            errorMessage.innerHTML = `File cannot be larger than ${MAX_FILE_SIZE_IN_MB}MB`;
+          }
           if (newFilename && videoName !== newFilename) {
             errorMessage.innerHTML = `Cannot change the video name when editing, the file must be called ${videoName}`;
           }
@@ -107,8 +119,10 @@
       <div id="errorMessage" style="color: red"></div>
     </form>
     <div style="padding: 1rem; display: flex; flex-flow: column">
-      <span id="videoFilename"></span>
-      <video id="existingVideo" style="height: 300px" controls></video>
+      <div>
+        <p id="videoFilename"></p>
+        <video id="existingVideo" style="height: 300px" controls></video>
+      </div>
       <div style="padding: 1rem">
         <button id="submitButton">Update Video</button>
         <button id="list">List existing videos</button>

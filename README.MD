@@ -48,12 +48,24 @@ heroku config:set ENVIRONMENT=heroku
 You can then hit the server at
 https://barbers-hill-video-server.herokuapp.com/
 
+## Bring the remote database locally for actual production performance testing
+
+Install mongodb database tools:
+`https://docs.mongodb.com/database-tools/installation/installation-macos/`
+
+Dump the remote db: https://docs.mongodb.com/database-tools/mongodump/
+
+```
+mongodump --uri=<url from the server console when starting pointing to remote db>
+```
+
+Restore to local db: https://docs.mongodb.com/database-tools/mongorestore/
+
+```
+mongorestore
+
+```
+
 ## TODOS
 
-Edit case is writing invalid name since I'm going through the same codepath in formik without file upload
-
 test more than 20 videos to make sure they display from mongo
-
-Add editing of overall page description to main Navigation
-
-Learn to deploy the prebuilt Docker container to Heroku directly

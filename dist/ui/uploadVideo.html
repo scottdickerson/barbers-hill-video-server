@@ -9,6 +9,8 @@
       let submitButton;
       let title, description, errorMessage;
       let newSequence = 0;
+      let existingVideoNames;
+      const MAX_FILE_SIZE_IN_MB = 300;
 
       document.addEventListener("DOMContentLoaded", () => {
         const listButton = document.getElementById("list");
@@ -20,6 +22,7 @@
         errorMessage = document.getElementById("errorMessage");
         uploadForm = document.getElementById("uploadForm");
         submitButton = document.getElementById("submitButton");
+        fileUploader = document.getElementById("fileUploader");
 
         // figure out the new sequence to use for this video
         fetch("/api")
@@ -29,10 +32,15 @@
               Math.max(...videos.map(({ sequence }) => sequence), 0) + 1;
             console.log("new Sequence", newSequence);
             uploadForm.elements.newSequence.value = newSequence;
+            existingVideoNames = videos.map(
+              ({ videoFilename }) => videoFilename
+            );
           });
 
         // Check the form before submitting
         validateForm = (event) => {
+          errorMessage.innerHTML = "";
+
           if (
             uploadForm.elements.fileUploader.files.length < 1 ||
             uploadForm.elements.description.value === "" ||
@@ -40,9 +48,20 @@
             uploadForm.elements.keywords.value === ""
           ) {
             errorMessage.innerHTML = "Fill out all fields to submit!";
-          } else {
-            errorMessage.innerHTML = "";
           }
+
+          const fileSize = fileUploader.files[0]?.size;
+          console.log("File size", fileSize);
+          if (fileSize > MAX_FILE_SIZE_IN_MB * 1024 * 1024) {
+            errorMessage.innerHTML = `File cannot be larger than ${MAX_FILE_SIZE_IN_MB}MB`;
+          }
+
+          const newFilename =
+            fileUploader.files?.length > 0 && fileUploader.files[0].name;
+          if (existingVideoNames.includes(newFilename)) {
+            errorMessage.innerHTML = `A video with the filename: ${newFilename} already exists.`;
+          }
+
           if (errorMessage.innerHTML === "") {
             uploadForm.submit();
           }

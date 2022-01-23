@@ -4,3 +4,4 @@
 ./mongosh*
 *.DS_Store
 .env
+dbdumps

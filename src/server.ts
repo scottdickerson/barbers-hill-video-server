@@ -2,11 +2,10 @@ import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
 import formidable from "formidable";
 import { omit } from "lodash";
-import mongoDB, { MongoClient } from "mongodb";
+import mongoDB, { GridFSBucket, MongoClient } from "mongodb";
 import path from "path";
+import { Writable } from "stream";
 import IVideo from "./types";
-
-import { deleteVideo, streamVideo } from "./getVideos";
 
 // Replace the uri string with your MongoDB deployment's connection string.
 const uri = process.env.MONGO_HOSTNAME
@@ -15,16 +14,22 @@ const uri = process.env.MONGO_HOSTNAME
       process.env.MONGO_PORT ? process.env.MONGO_PORT : "27017"
     }`;
 
+const VIDEO_BUCKET_NAME = "videos";
+
 console.log("mongo db url", uri);
 const client = new MongoClient(uri);
 let videoDatabaseConnection: mongoDB.Collection;
 let overviewConnection: mongoDB.Collection;
+let videosBucket: mongoDB.GridFSBucket;
+let videosDatabaseCollection: mongoDB.Collection;
 
 async function connectToDB() {
   await client.connect();
   const database = client.db("barbers-hill");
   videoDatabaseConnection = database.collection("videos");
   overviewConnection = database.collection("overview");
+  videosBucket = new GridFSBucket(database, { bucketName: VIDEO_BUCKET_NAME });
+  videosDatabaseCollection = database.collection(`${VIDEO_BUCKET_NAME}.files`);
 
   console.log(
     `connected to the barbers hill mongo database here: ${
@@ -43,11 +48,21 @@ connectToDB().catch(console.dir);
 
 const app = express();
 
+const MAX_FILE_SIZE_MB = 300;
+
+const handleWriteVideoFileToMongo = (file: formidable.File): Writable => {
+  // this is broken so is not passing the filename
+  console.log("writing file to mongo bucket", file.newFilename);
+  return videosBucket.openUploadStream(file.newFilename);
+};
+
 app.use(express.json());
 const port = process.env.PORT || 3000;
 const form = formidable({
+  fileWriteStreamHandler: handleWriteVideoFileToMongo,
   filename: (name, ext, { originalFilename }) => originalFilename || name,
   keepExtensions: false,
+  maxFileSize: MAX_FILE_SIZE_MB * 1024 * 1024,
   uploadDir: path.join(__dirname, "..", "dist", "videos"),
 });
 
@@ -68,8 +83,22 @@ app.put("/api/overview", (req: Request, res: Response) => {
 
 // This is used by the video source tag in our HTML to stream the actual video
 app.get("/api/:videoName", (req: Request, res: Response) => {
-  const videoToStream = req.params.videoName;
-  streamVideo(videoToStream, res);
+  const fileName = req.params.videoName;
+  console.log("downloading filename", fileName, typeof fileName);
+  if (fileName && fileName !== "null") {
+    try {
+      console.log("trying to open download stream for file", fileName);
+      const readableImage = videosBucket.openDownloadStreamByName(fileName);
+      console.log("found file stream for video");
+      // write the file
+      readableImage.pipe(res);
+    } catch (error) {
+      console.error(error);
+      console.log("error returning image", fileName);
+    }
+  } else {
+    console.error("Cannot find filename", fileName);
+  }
 });
 
 app.get(
@@ -109,7 +138,14 @@ app.delete("/api/:videoName", async (req: Request, res: Response) => {
   });
   if (deletedInfo.deletedCount > 0) {
     console.log("deleted video title from database: ", videoName);
-    deleteVideo(videoName);
+    // find the id of the image to delete from GridFS
+    const videoToDelete = await videosDatabaseCollection.findOne({
+      filename: videoName,
+    });
+    console.log("image to delete", videoToDelete);
+    if (videoToDelete) {
+      await videosBucket.delete(videoToDelete._id);
+    }
     res.send("Deleted video");
   } else {
     console.log("could not find video to delete", videoName);

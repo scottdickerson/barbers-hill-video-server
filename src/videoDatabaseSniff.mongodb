@@ -8,14 +8,20 @@ use('barbers-hill');
 
 // db.videos.updateOne({videoFilename:'earthVideo.mp4'},{$set: {sequence:0}})
 // db.videos.updateOne({videoFilename:'sample-mp4-file-small.mp4'},{$set: {sequence:1}})
+// db.videos.insertOne({title: 'title',description: 'description',videoFilename: 'myvideo.mp4'})
 
 
 db.videos.find()
-// db.videos.insertOne({title: 'title',description: 'description',videoFilename: 'myvideo.mp4'})
+db.videos.files.find()
+db.videos.chunks.find()
+
 
 // The drop() command destroys all data from a collection.
 // Make sure you run it against the correct database and collection.
-//db.videos.drop();
+// db.videos.drop();
+// db.overview.drop()
+// db.videos.files.drop();
+// db.videos.chunks.drop();
 
 // // Insert a few documents into the sales collection.
 // db.sales.insertMany([
