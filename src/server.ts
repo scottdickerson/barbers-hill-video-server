@@ -36,12 +36,6 @@ async function connectToDB() {
       process.env.MONGO_HOSTNAME || "mongodb://127.0.0.1:27017"
     }`
   );
-  if (process.env.ENVIRONMENT === "heroku") {
-    console.log(
-      "clearing videos since heroku has restarted and the video files have been lost"
-    );
-    videoDatabaseConnection.drop();
-  }
 }
 
 connectToDB().catch(console.dir);

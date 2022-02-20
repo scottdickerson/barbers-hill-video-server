@@ -8,10 +8,16 @@ Use this URL to add videos or list them
 
 Set the MONGO_HOSTNAME, MONGO_PORT, MONGO_USER, and MONGO_PASS environment variables to point to the cloud hosted mongo server.
 
-You can set these in the .env file and then source them locally for testing with this
+On Mac OS you can set these in the .env file and then source them locally for testing with this
 `export $(cat .env | xargs)`
 
-mongodb+srv://admin:<password>@cluster0.umj4z.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
+Otherwise run each of these separately
+```
+ export MONGO_HOSTNAME=cluster0.umj4z.mongodb.net
+ export MONGO_USER=admin
+ export MONGO_PASS=<normalpassword>
+```
+
 
 ## Running a local docker image
 
@@ -41,7 +47,6 @@ git push heroku main
 heroku config:set MONGO_HOSTNAME=cluster0.umj4z.mongodb.net
 heroku config:set MONGO_USER=admin
 heroku config:set MONGO_PASS=<normalpassword>
-heroku config:set ENVIRONMENT=heroku
 
 ```
 
@@ -59,6 +64,8 @@ Dump the remote db: https://docs.mongodb.com/database-tools/mongodump/
 mongodump --uri=<url from the server console when starting pointing to remote db>
 ```
 
+Delete the local db
+
 Restore to local db: https://docs.mongodb.com/database-tools/mongorestore/
 
 ```
@@ -69,3 +76,4 @@ mongorestore
 ## TODOS
 
 test more than 20 videos to make sure they display from mongo
+Add uploading message while video is uploading
