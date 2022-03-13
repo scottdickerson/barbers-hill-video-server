@@ -1,20 +1,34 @@
 import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
-import formidable from "formidable";
 import { omit } from "lodash";
 import mongoDB, { GridFSBucket, MongoClient } from "mongodb";
-import path from "path";
-import { Writable } from "stream";
 import IVideo from "./types";
+import multer from "multer";
+const { GridFsStorage } = require("multer-gridfs-storage");
 
 // Replace the uri string with your MongoDB deployment's connection string.
 const uri = process.env.MONGO_HOSTNAME
-  ? `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@${process.env.MONGO_HOSTNAME}/?retryWrites=true&w=majority`
+  ? `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@${process.env.MONGO_HOSTNAME}/`
   : `mongodb://127.0.0.1:${
       process.env.MONGO_PORT ? process.env.MONGO_PORT : "27017"
-    }`;
+    }/`;
 
 const VIDEO_BUCKET_NAME = "videos";
+
+const databaseName = process.env.TEST_DB || "barbers-hill";
+
+var storage = new GridFsStorage({
+  url: uri + databaseName,
+  options: { useNewUrlParser: true, useUnifiedTopology: true },
+  file: (req: Request, file: { originalname: string }) => {
+    return {
+      bucketName: VIDEO_BUCKET_NAME,
+      filename: file.originalname,
+    };
+  },
+});
+
+export const uploadFiles = multer({ storage: storage }).single("videoFile");
 
 console.log("mongo db url", uri);
 const client = new MongoClient(uri);
@@ -25,7 +39,7 @@ let videosDatabaseCollection: mongoDB.Collection;
 
 async function connectToDB() {
   await client.connect();
-  const database = client.db("barbers-hill");
+  const database = client.db(databaseName);
   videoDatabaseConnection = database.collection("videos");
   overviewConnection = database.collection("overview");
   videosBucket = new GridFSBucket(database, { bucketName: VIDEO_BUCKET_NAME });
@@ -44,21 +58,8 @@ const app = express();
 
 const MAX_FILE_SIZE_MB = 300;
 
-const handleWriteVideoFileToMongo = (file: formidable.File): Writable => {
-  // this is broken so is not passing the filename
-  console.log("writing file to mongo bucket", file.newFilename);
-  return videosBucket.openUploadStream(file.newFilename);
-};
-
 app.use(express.json());
 const port = process.env.PORT || 3000;
-const form = formidable({
-  fileWriteStreamHandler: handleWriteVideoFileToMongo,
-  filename: (name, ext, { originalFilename }) => originalFilename || name,
-  keepExtensions: false,
-  maxFileSize: MAX_FILE_SIZE_MB * 1024 * 1024,
-  uploadDir: path.join(__dirname, "..", "dist", "videos"),
-});
 
 app.use(cors());
 
@@ -147,56 +148,52 @@ app.delete("/api/:videoName", async (req: Request, res: Response) => {
   }
 });
 
-const parseForm = (req: Request, res: Response, next: NextFunction) => {
+const parseForm = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    form.parse(req, async (err, fields, files) => {
-      if (err) {
-        next(err);
-      }
-
-      const isUpdate = Boolean(req.params?.videoName);
-      console.log("Is this an update? ", isUpdate);
-      const videoFilename =
-        req.params?.videoName || // passed as a param if editing, first check the edit case, otherwise it's a new file
-        (files.videoFile as formidable.File)?.newFilename; // I'm sure this is only one file at a time
-
-      const newVideo = {
-        ...fields,
-        sequence: parseInt(fields.sequence as string, 10),
-        videoFilename,
-      };
-      console.log("uploading new video", JSON.stringify(newVideo));
-      try {
-        await videoDatabaseConnection.replaceOne(
-          { videoFilename }, // either use the new name or the old one
-          { ...omit(newVideo, ["_id"]), videoFilename }, // cannot mess with the existing id
-          {
-            upsert: true,
-          }
-        );
-      } catch (error) {
-        console.error(error);
-        console.log("could not insert/update new video", newVideo);
-        res.sendStatus(500);
-      }
-      // now redirect back to the list/add page since we've added the file
-      console.log("Redirecting to main page");
-      res.setHeader(
-        "location",
-        isUpdate ? "/ui/listVideos.html" : "/ui/mainNavigation.html"
+    const isUpdate = Boolean(req.params?.videoName);
+    console.log("Is this an update? ", isUpdate);
+    const fields = req.body;
+    const videoFilename = req.file?.filename;
+    const newVideo = {
+      ...fields,
+      sequence: parseInt(fields.sequence as string, 10),
+      videoFilename,
+    };
+    console.log("uploading new video", JSON.stringify(newVideo));
+    try {
+      await videoDatabaseConnection.replaceOne(
+        { videoFilename }, // either use the new name or the old one
+        { ...omit(newVideo, ["_id"]), videoFilename }, // cannot mess with the existing id
+        {
+          upsert: true,
+        }
       );
-      res.sendStatus(301);
-    });
+    } catch (error) {
+      console.error(error);
+      console.log("could not insert/update new video", newVideo);
+      res.sendStatus(500);
+    }
+    // now redirect back to the list/add page since we've added the file
+    console.log("Redirecting to main page");
+    res.setHeader(
+      "location",
+      isUpdate ? "/ui/listVideos.html" : "/ui/mainNavigation.html"
+    );
+    res.sendStatus(301);
   } catch (error) {
     console.log("error parsing the form or uploading the image file");
     console.error(error);
   }
 };
 
-app.post("/api", (req: Request, res: Response, next: NextFunction) => {
-  console.log("creating video");
-  parseForm(req, res, next);
-});
+app.post(
+  "/api",
+  uploadFiles,
+  (req: Request, res: Response, next: NextFunction) => {
+    console.log("creating video");
+    parseForm(req, res, next);
+  }
+);
 
 // Bad API design due to form limitation
 app.post("/api/:videoName", (req, res, next) => {

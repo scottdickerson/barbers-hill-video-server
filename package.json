@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "postinstall": "patch-package && npm install typescript && tsc",
+    "postinstall": "npm install typescript && tsc",
     "start": "tsc && node dist/server.js",
     "start-watch": "nodemon dist/server.js",
     "tsc-watch": "tsc -w",
@@ -17,7 +17,6 @@
   "devDependencies": {
     "@jest-mock/express": "^1.4.5",
     "@types/express": "^4.17.13",
-    "@types/formidable": "^2.0.3",
     "@types/jest": "^27.0.3",
     "@types/lodash": "^4.14.178",
     "@types/node": "^17.0.0",
@@ -29,11 +28,13 @@
   },
   "dependencies": {
     "@types/cors": "^2.8.12",
+    "@types/multer": "^1.4.7",
     "cors": "^2.8.5",
     "express": "^4.17.2",
-    "formidable": "^2.0.1",
     "lodash": "^4.17.21",
     "mongodb": "^4.3.0",
+    "multer": "^1.4.4",
+    "multer-gridfs-storage": "^5.0.2",
     "patch-package": "^6.4.7"
   }
 }
