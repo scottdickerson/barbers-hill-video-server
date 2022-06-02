@@ -4,10 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "postinstall": "npm install typescript && tsc",
-    "start": "tsc && node dist/server.js",
+    "postinstall": "npm run build",
+    "start": "node dist/server.js",
     "start-watch": "nodemon dist/server.js",
-    "tsc-watch": "tsc -w",
+    "build": "tsc",
+    "tsc-watch": "tsc-watch --onSuccess \"node ./dist/server.js\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "git add . && git commit -m 'HEROKU' && git push heroku main && heroku logs --tail"
   },
@@ -35,6 +36,7 @@
     "mongodb": "^4.3.0",
     "multer": "^1.4.4",
     "multer-gridfs-storage": "^5.0.2",
-    "patch-package": "^6.4.7"
+    "patch-package": "^6.4.7",
+    "typescript": "^4.5.5"
   }
 }
