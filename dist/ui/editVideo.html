@@ -15,6 +15,8 @@
         const uploadForm = document.getElementById("uploadForm");
         const fileUploader = document.getElementById("fileUploader");
         const videoFilename = document.getElementById("videoFilename");
+        const existingVideoInput =
+          document.getElementById("existingVideoInput");
 
         const listButton = document.getElementById("list");
         listButton.addEventListener("click", () => {
@@ -69,6 +71,7 @@
             title.value = video?.title;
             description.value = video?.description;
             keywords.value = video?.keywords;
+            existingVideoInput.value = videoName;
             sequence.value = video?.sequence;
             // tell the upload form where to go
             uploadForm.action = `/api/${videoName}`;
@@ -117,6 +120,7 @@
       <input id="fileUploader" name="videoFile" type="file" accept=".mp4" />
       <input id="sequence" name="sequence" hidden />
       <div id="errorMessage" style="color: red"></div>
+      <input hidden id="existingVideoInput" name="existingVideoFile" />
     </form>
     <div style="padding: 1rem; display: flex; flex-flow: column">
       <div>
@@ -124,7 +128,9 @@
         <video id="existingVideo" style="height: 300px" controls></video>
       </div>
       <div style="padding: 1rem">
-        <button id="submitButton">Update Video</button>
+        <button id="submitButton" style="color: white; background-color: blue">
+          Update Video
+        </button>
         <button id="list">List existing videos</button>
       </div>
     </div>

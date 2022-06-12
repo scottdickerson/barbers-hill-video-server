@@ -151,18 +151,18 @@ app.delete("/api/:videoName", async (req: Request, res: Response) => {
 const parseForm = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const isUpdate = Boolean(req.params?.videoName);
-    console.log("Is this an update? ", isUpdate);
+    console.error("Is this an update? ", isUpdate);
     const fields = req.body;
-    const videoFilename = req.file?.filename;
+    const videoFilename = req.file?.filename || req.body.existingVideoFile; // either use the new name or the old one
     const newVideo = {
       ...fields,
       sequence: parseInt(fields.sequence as string, 10),
       videoFilename,
     };
-    console.log("uploading new video", JSON.stringify(newVideo));
+    console.error("uploading new video", JSON.stringify(newVideo));
     try {
       await videoDatabaseConnection.replaceOne(
-        { videoFilename }, // either use the new name or the old one
+        { videoFilename },
         { ...omit(newVideo, ["_id"]), videoFilename }, // cannot mess with the existing id
         {
           upsert: true,
@@ -191,14 +191,14 @@ app.post(
   uploadFiles,
   (req: Request, res: Response, next: NextFunction) => {
     console.log("creating video");
-    parseForm(req, res, next);
+    return parseForm(req, res, next);
   }
 );
 
-// Bad API design due to form limitation
-app.post("/api/:videoName", (req, res, next) => {
+// Updating video
+app.post("/api/:videoName", uploadFiles, (req, res, next) => {
   console.log("updating video ", req.params.videoName);
-  parseForm(req, res, next);
+  return parseForm(req, res, next);
 });
 
 app.put(
