@@ -47,6 +47,9 @@
           }
           // todo validate that they haven't changed the name of the file
           if (errorMessage.innerHTML === "") {
+            errorMessage.innerHTML = "Uploading video, please wait...";
+            submitButton.disabled = true;
+            submitButton.style.backgroundColor = "gray";
             uploadForm.submit();
           }
         };
