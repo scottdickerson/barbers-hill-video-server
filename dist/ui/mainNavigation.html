@@ -4,6 +4,7 @@
       const addButton = document.getElementById("add");
       const listButton = document.getElementById("list");
       const updateForm = document.getElementById("updateForm");
+      const message = document.getElementById("message");
       const introductionField = document.getElementById("introduction");
 
       // populate the introduction
@@ -15,6 +16,7 @@
 
       updateForm.addEventListener("submit", (event) => {
         event.preventDefault();
+
         const introduction = introductionField.value;
         if (introduction === "") {
           return false;
@@ -25,6 +27,11 @@
             method: "PUT",
             body: JSON.stringify(form),
             headers: { "content-type": "application/json" },
+          }).then(() => {
+            message.innerHTML = "Introduction updated";
+            setTimeout(() => {
+              message.innerHTML = "";
+            }, 3000);
           });
         }
       });
@@ -44,7 +51,6 @@
         style="
           display: flex;
           flex-flow: column;
-          height: 135px;
           justify-content: space-between;
           width: 500px;
         "
@@ -64,6 +70,7 @@
         >
           Update introduction
         </button>
+        <div id="message" style="margin: 1rem 0rem"></div>
       </form>
       <div>
         <h2>Select an Action</h2>
