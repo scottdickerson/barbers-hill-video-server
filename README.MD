@@ -12,12 +12,12 @@ On Mac OS you can set these in the .env file and then source them locally for te
 `export $(cat .env | xargs)`
 
 Otherwise run each of these separately
+
 ```
  export MONGO_HOSTNAME=cluster0.umj4z.mongodb.net
  export MONGO_USER=admin
  export MONGO_PASS=<normalpassword>
 ```
-
 
 ## Running a local docker image
 
@@ -61,7 +61,7 @@ Install mongodb database tools:
 Dump the remote db: https://docs.mongodb.com/database-tools/mongodump/
 
 ```
-mongodump --uri=<url from the server console when starting pointing to remote db>
+mongodump --uri "<url from the server console when starting pointing to remote db>"
 ```
 
 Delete the local db
