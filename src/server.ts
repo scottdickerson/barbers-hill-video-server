@@ -5,6 +5,8 @@ import mongoDB, { GridFSBucket, MongoClient } from "mongodb";
 import IVideo from "./types";
 import multer from "multer";
 const { GridFsStorage } = require("multer-gridfs-storage");
+const spdy = require("spdy");
+const fs = require("node:fs");
 
 // Replace the uri string with your MongoDB deployment's connection string.
 const uri = process.env.MONGO_HOSTNAME
@@ -258,5 +260,14 @@ app.use("/", (req, res) => {
   res.sendStatus(301);
 });
 
-console.log("Video server listening on port", port);
-app.listen(port);
+const server = spdy.createServer(
+  {
+    key: fs.readFileSync("localhost-privkey.pem"),
+    cert: fs.readFileSync("localhost-cert.pem"),
+  },
+  app
+);
+
+console.log("server listening on port", port);
+
+server.listen(port);

@@ -1,10 +1,21 @@
 # Video Admin app for Barbers hill
 
+## Starting in dev mode
+
+`npm run tsc-watch`
+
 Use this URL to add videos or list them
 
 <http://127.0.0.1:3000/>
 
+## Starting in production mode
+
+`npm run build`
+`npm run start`
+
 ## pointing to a mongo database
+
+By default it points to a local mongo database on the default port
 
 Set the MONGO_HOSTNAME, MONGO_PORT, MONGO_USER, and MONGO_PASS environment variables to point to the cloud hosted mongo server.
 
